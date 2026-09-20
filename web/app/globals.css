@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+/*
+  Design tokens for Payung. Named in Indonesian to match the UI copy rule.
+  Colors are chosen for a mid-range Android screen read outdoors in glare:
+  high contrast ink, one confident blue, and a separate green reserved for
+  money that actually arrived.
+*/
+@theme {
+  --color-kertas: #f2f5f9; /* page background, overcast-sky grey */
+  --color-kartu: #ffffff; /* card surface */
+  --color-tinta: #0c1826; /* primary text */
+  --color-abu: #55677a; /* secondary text, 5.8:1 on white */
+  --color-garis: #dfe6ef; /* hairline borders */
+
+  --color-langit: #0b5fd0; /* primary action, 5.9:1 with white text */
+  --color-langit-tua: #084aa6; /* pressed state */
+  --color-langit-muda: #e8f1fe; /* tinted surface */
+
+  --color-hujan: #7fb6f5; /* rainfall bars below threshold */
+  --color-uang: #0a6e4a; /* money received, 6.4:1 on white */
+  --color-uang-muda: #e4f5ec;
+  --color-ambang: #e0742a; /* threshold line, 3.2:1 — graphics only */
+  --color-bahaya: #c03434;
+
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+}
+
+html {
+  background: var(--color-kertas);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--color-kertas);
+  color: var(--color-tinta);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  /* Never let a phone's notch or home indicator eat the UI. */
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Rupiah amounts line up column-wise when stacked in a list. */
+.angka {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Every tap target clears 44px without needing a utility on each button. */
+button,
+a[role="button"] {
+  touch-action: manipulation;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -25,7 +25,7 @@ go run ./cmd/migrate
 go run ./cmd/api                 # :8080
 go run ./cmd/oracle --once       # yesterday's rain for all zones
 sqlc generate                    # after editing internal/store/queries/*.sql
-abigen --abi ../contracts/out/PayungPool.sol/PayungPool.abi.json --pkg chain --type PayungPool --out internal/chain/payungpool.go
+./scripts/gen-abi.sh              # after editing contracts/src/*.sol; regenerates internal/chain/*.go
 
 # Frontend
 cd web && pnpm install && pnpm dev
@@ -82,4 +82,13 @@ docs/                            REQUIREMENTS, ARCHITECTURE, SCHEMA, ROADMAP
 - Do not write UI copy in English.
 
 ## Current Focus
-Phase 1: `PayungPool.sol` and `IDRP.sol` with all 10 test cases from `docs/SCHEMA.md` passing, then deploy and verify on opBNB testnet.
+Phases 1 to 3 are code-complete and verified locally: `forge test` green (17), backend `go test ./...` green against Postgres, `pnpm build` green, and all three screens driven in Chromium at 360px against a live stack (anvil + API + Postgres) with real policy and payout data.
+
+Two things block the Phase 3 checkpoint (recording the flow on a real phone), both needing credentials only you have:
+- **Gas sponsorship is not wired.** `buyPolicy` is sent straight from the Privy embedded wallet, which holds no tBNB, so a real purchase fails. Pick one: MegaFuel (needs a sponsor policy + credentials), or the relayer fallback in `docs/SCHEMA.md` (needs a new `buyPolicyFor`-style path on the contract, so it reopens Phase 1).
+- **Nothing is deployed.** Contracts to opBNB testnet (`PRIVATE_KEY`, `BSCSCAN_API_KEY`), backend to Railway (`ORACLE_PRIVATE_KEY`, `FAUCET_PRIVATE_KEY`), web to Vercel (`NEXT_PUBLIC_PRIVY_APP_ID`). Then point `POOL_ADDRESS`/`IDRP_ADDRESS`/`DEPLOY_BLOCK` and the `NEXT_PUBLIC_*` equivalents at it.
+
+Known gaps, deliberate:
+- Phase 4 (AI pricing/explanations) is not implemented. `GET /zones` serves the seeded Rp 5.000 premium with a placeholder narrative, and `payouts.explanation` stays null, which the UI shows as "Penjelasan menyusul."
+- Web first-load JS is ~950 kB, mostly Privy and the wallet connectors it bundles for wallets this app never offers. That misses the "dashboard < 2 detik on 4G" target in `docs/REQUIREMENTS.md` and needs a decision before launch.
+- Without `NEXT_PUBLIC_PRIVY_APP_ID` the web app runs read-only in preview mode (`NEXT_PUBLIC_PREVIEW_ADDRESS`), with buying disabled and a visible notice.
