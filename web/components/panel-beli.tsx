@@ -11,7 +11,7 @@ import { useAkun } from "@/lib/akun";
 import { IDRP_ADDRESS, POOL_ADDRESS, idrpAbi, poolAbi } from "@/lib/contracts";
 import { formatRupiah, isLessThan, multiplyWei, toWei } from "@/lib/format";
 import { pesanGalat } from "@/lib/galat";
-import { Kartu, Tombol } from "./ui";
+import { Berhasil, Kartu, Tombol } from "./ui";
 
 const PILIHAN_MINGGU = [1, 2, 3, 4];
 
@@ -70,15 +70,30 @@ export function PanelBeli({ zona, terkunci }: { zona: Zona; terkunci: boolean })
     onSuccess: async () => {
       setGalat(null);
       await queryClient.invalidateQueries();
-      router.push("/polis?baru=1");
     },
     onError: (e) => setGalat(pesanGalat(e)),
   });
 
   const sedangProses = beli.isPending;
 
+  // The driver sees the result where they tapped, and moves on when they
+  // are ready, rather than being thrown to another screen mid-thought.
+  if (beli.isSuccess) {
+    return (
+      <Kartu className="mt-4" id="panel-beli">
+        <Berhasil
+          judul="Berhasil, kamu terlindungi"
+          pesan={`Polis ${zona.name} mulai jalan besok pagi dan aktif ${minggu * 7} hari. Kalau hujan lewat ${zona.thresholdMm} mm, uangnya masuk sendiri.`}
+          anak={
+            <Tombol onClick={() => router.push("/polis?baru=1")}>Lihat polis saya</Tombol>
+          }
+        />
+      </Kartu>
+    );
+  }
+
   return (
-    <Kartu className="mt-4">
+    <Kartu className="mt-4" id="panel-beli">
       <fieldset disabled={sedangProses}>
         <legend className="text-[15px] font-bold">Mau dilindungi berapa minggu?</legend>
 
@@ -91,7 +106,7 @@ export function PanelBeli({ zona, terkunci }: { zona: Zona; terkunci: boolean })
                 type="button"
                 onClick={() => setMinggu(n)}
                 aria-pressed={aktif}
-                className={`min-h-[52px] rounded-xl border text-[16px] font-bold transition-colors ${
+                className={`tekan min-h-[52px] rounded-xl border text-[16px] font-bold transition-colors ${
                   aktif ? "border-langit bg-langit text-white" : "border-garis bg-kartu text-tinta"
                 }`}
               >

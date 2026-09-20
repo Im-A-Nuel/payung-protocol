@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import { getPayouts, type Payout } from "@/lib/api";
 import { useAkun } from "@/lib/akun";
 import { urlTransaksi } from "@/lib/contracts";
-import { formatRupiah, formatTanggalPanjang, toWei } from "@/lib/format";
+import { formatRupiah, formatRupiahAngka, formatTanggalPanjang, rupiahBulat, toWei } from "@/lib/format";
+import { useHitungNaik } from "@/lib/hitung-naik";
 import { pesanGalat } from "@/lib/galat";
 import { Galat, JudulHalaman, Kartu, Kosong, Memuat } from "@/components/ui";
 
@@ -80,18 +82,16 @@ export default function HalamanRiwayat() {
     <>
       <JudulHalaman judul="Riwayat bayaran" />
 
-      <Kartu className="mb-4 border-uang/30 bg-uang-muda">
-        <p className="text-[13px] font-semibold text-uang">Total yang sudah masuk</p>
-        <p className="angka mt-1 text-[30px] leading-tight font-extrabold text-uang">{formatRupiah(total)}</p>
-        <p className="mt-1 text-[13px] text-abu">
-          dari {daftar.length} hari hujan yang kena ambang
-        </p>
-      </Kartu>
+      <TotalMasuk totalWei={total} jumlahHari={daftar.length} />
 
       <ul className="flex flex-col gap-3">
-        {daftar.map((p) => (
-          <li key={`${p.txHash}-${p.date}`}>
-            <BarisPayout payout={p} />
+        {daftar.map((p, i) => (
+          <li
+            key={`${p.txHash}-${p.date}`}
+            className="masuk"
+            style={{ "--tunda": `${120 + i * 70}ms` } as CSSProperties}
+          >
+            <BarisPayout payout={p} terbaru={i === 0} />
           </li>
         ))}
       </ul>
@@ -99,9 +99,29 @@ export default function HalamanRiwayat() {
   );
 }
 
-function BarisPayout({ payout }: { payout: Payout }) {
+function TotalMasuk({ totalWei, jumlahHari }: { totalWei: bigint; jumlahHari: number }) {
+  const berjalan = useHitungNaik(rupiahBulat(totalWei));
+
   return (
-    <Kartu>
+    <Kartu className="masuk mb-4 border-uang/30 bg-uang-muda">
+      <p className="text-[13px] font-semibold text-uang">Total yang sudah masuk</p>
+      <p className="angka mt-1 text-[30px] leading-tight font-extrabold text-uang">
+        {formatRupiahAngka(berjalan)}
+      </p>
+      <p className="mt-1 text-[13px] text-abu">dari {jumlahHari} hari hujan yang kena ambang</p>
+    </Kartu>
+  );
+}
+
+function BarisPayout({ payout, terbaru }: { payout: Payout; terbaru: boolean }) {
+  return (
+    <Kartu className={terbaru ? "border-uang/40" : ""}>
+      {terbaru ? (
+        <span className="mb-2 inline-block rounded-full bg-uang px-2 py-0.5 text-[11px] font-bold text-white">
+          Terbaru
+        </span>
+      ) : null}
+
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-[15px] font-bold">{formatTanggalPanjang(payout.date)}</p>

@@ -1,13 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import { getPolicy, getZones } from "@/lib/api";
 import { useAkun } from "@/lib/akun";
 import { formatRupiah } from "@/lib/format";
 import { pesanGalat } from "@/lib/galat";
+import { BarBeli } from "@/components/bar-beli";
+import { HujanAnimasi } from "@/components/hujan-animasi";
 import { KartuZona } from "@/components/kartu-zona";
 import { PanelBeli } from "@/components/panel-beli";
 import { Galat, Kartu, Memuat, Tombol } from "@/components/ui";
@@ -60,24 +62,22 @@ export default function Beranda() {
       </header>
 
       {!sudahMasuk ? (
-        <Kartu className="mb-6 bg-langit text-white">
-          <h1 className="text-[24px] leading-tight font-extrabold">Hujan deras, order sepi.</h1>
-          <p className="mt-2 text-[15px] leading-relaxed text-white/90">
-            {contoh
-              ? `Begitu hujan sehari lewat ${contoh.thresholdMm} mm di zonamu, ${formatRupiah(contoh.payoutPerDay)} masuk ke dompetmu. Tidak perlu lapor, tidak perlu kirim foto.`
-              : "Begitu hujan di zonamu melewati ambang, uangnya masuk sendiri ke dompetmu. Tidak perlu lapor, tidak perlu kirim foto."}
-          </p>
-          <Tombol
-            varian="kedua"
-            className="mt-4 border-transparent"
-            onClick={masuk}
-            disabled={!siap}
-          >
-            Masuk pakai Google
-          </Tombol>
-          <p className="mt-2 text-center text-[13px] text-white/80">
-            Cukup akun Google. Tidak ada formulir.
-          </p>
+        <Kartu className="masuk relative mb-6 overflow-hidden bg-langit text-white">
+          <HujanAnimasi />
+          <div className="relative">
+            <h1 className="text-[24px] leading-tight font-extrabold">Hujan deras, order sepi.</h1>
+            <p className="mt-2 text-[15px] leading-relaxed text-white/90">
+              {contoh
+                ? `Begitu hujan sehari lewat ${contoh.thresholdMm} mm di zonamu, ${formatRupiah(contoh.payoutPerDay)} masuk ke dompetmu. Tidak perlu lapor, tidak perlu kirim foto.`
+                : "Begitu hujan di zonamu melewati ambang, uangnya masuk sendiri ke dompetmu. Tidak perlu lapor, tidak perlu kirim foto."}
+            </p>
+            <Tombol varian="kedua" className="mt-4 border-transparent" onClick={masuk} disabled={!siap}>
+              Masuk pakai Google
+            </Tombol>
+            <p className="mt-2 text-center text-[13px] text-white/80">
+              Cukup akun Google. Tidak ada formulir.
+            </p>
+          </div>
         </Kartu>
       ) : null}
 
@@ -117,22 +117,26 @@ export default function Beranda() {
         <Galat pesan={pesanGalat(zona.error)} onCoba={() => zona.refetch()} />
       ) : (
         <div className="flex flex-col gap-3">
-          {daftar.map((z) => (
-            <KartuZona
-              key={z.id}
-              zona={z}
-              terpilih={z.id === idAktif}
-              terkunci={polis.data?.zoneId === z.id}
-              tampilkanAturan={!aturanSeragam}
-              tampilkanNarasi={!narasiSeragam}
-              onPilih={setZonaDipilih}
-            />
+          {daftar.map((z, i) => (
+            <div key={z.id} className="masuk" style={{ "--tunda": `${i * 55}ms` } as CSSProperties}>
+              <KartuZona
+                zona={z}
+                terpilih={z.id === idAktif}
+                terkunci={polis.data?.zoneId === z.id}
+                tampilkanAturan={!aturanSeragam}
+                tampilkanNarasi={!narasiSeragam}
+                onPilih={setZonaDipilih}
+              />
+            </div>
           ))}
         </div>
       )}
 
       {sudahMasuk && terpilih ? (
-        <PanelBeli zona={terpilih} terkunci={polis.data?.zoneId === terpilih.id} />
+        <>
+          <PanelBeli zona={terpilih} terkunci={polis.data?.zoneId === terpilih.id} />
+          <BarBeli zona={terpilih} terkunci={polis.data?.zoneId === terpilih.id} />
+        </>
       ) : null}
     </>
   );

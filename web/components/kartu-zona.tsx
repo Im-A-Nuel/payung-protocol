@@ -23,13 +23,16 @@ export function KartuZona({
       type="button"
       onClick={() => onPilih(zona.id)}
       aria-pressed={terpilih}
-      className={`w-full rounded-2xl border p-4 text-left transition-colors ${
+      className={`tekan w-full rounded-2xl border p-4 text-left transition-colors ${
         terpilih ? "border-langit bg-langit-muda" : "border-garis bg-kartu"
       }`}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[17px] font-extrabold">{zona.name}</p>
+          <p className="flex items-center gap-1.5 text-[17px] font-extrabold">
+            {terpilih ? <Centang /> : null}
+            {zona.name}
+          </p>
           {tampilkanAturan ? (
             <p className="mt-0.5 text-[13px] text-abu">
               Bayar {formatRupiah(zona.payoutPerDay)} tiap hari hujan lewat {zona.thresholdMm} mm
@@ -54,5 +57,22 @@ export function KartuZona({
         </p>
       ) : null}
     </button>
+  );
+}
+
+/** Selection needs a shape, not just a tint, for anyone who reads colour poorly. */
+function Centang() {
+  return (
+    <span className="lingkar flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-langit">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path
+          d="M5 12.5 10 17.5 19 7.5"
+          stroke="white"
+          strokeWidth="3.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </span>
   );
 }

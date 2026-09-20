@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 
+import { BannerKoneksi } from "@/components/banner-koneksi";
 import { DaftarSW } from "@/components/daftar-sw";
 import { Nav } from "@/components/nav";
 import { Providers } from "./providers";
@@ -34,7 +35,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${jakarta.variable} antialiased`}>
         <Providers>
           <div className="mx-auto flex min-h-dvh w-full max-w-[520px] flex-col">
-            <main className="flex-1 px-4 pt-5 pb-28">{children}</main>
+            <main className="flex-1 px-4 pt-5 pb-28">
+              <BannerKoneksi />
+              {children}
+            </main>
             <Nav />
           </div>
           <DaftarSW />

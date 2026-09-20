@@ -27,6 +27,20 @@ export function formatAngka(wei: string | bigint | null | undefined): string {
   return new Intl.NumberFormat("id-ID").format(toBigInt(wei) / SATU_IDRP);
 }
 
+/**
+ * Whole rupiah as a plain number, for the one case that needs arithmetic:
+ * animating a total upward. Payout totals are thousands of rupiah, nowhere
+ * near the safe-integer ceiling, and nothing derived from this goes on-chain.
+ */
+export function rupiahBulat(wei: string | bigint | null | undefined): number {
+  return Number(toBigInt(wei) / SATU_IDRP);
+}
+
+/** Formats a value that is already whole rupiah, not wei. */
+export function formatRupiahAngka(rupiah: number): string {
+  return `Rp ${new Intl.NumberFormat("id-ID").format(Math.round(rupiah))}`;
+}
+
 export function isLessThan(a: string | bigint, b: string | bigint): boolean {
   return toBigInt(a) < toBigInt(b);
 }
@@ -76,6 +90,19 @@ export function formatTanggalPanjang(iso: string): string {
   const t = pecahTanggal(iso);
   if (!t) return iso ?? "";
   return `${t.hari} ${BULAN_PANJANG[t.bulan - 1]} ${t.tahun}`;
+}
+
+/**
+ * Whole days between two WIB calendar dates. This counts days between two
+ * dates the API already resolved; it is not day_index math and must never
+ * be used to derive one (see CLAUDE.md).
+ */
+export function selisihHari(dari: string, sampai: string): number {
+  const a = pecahTanggal(dari);
+  const b = pecahTanggal(sampai);
+  if (!a || !b) return 0;
+  const ms = Date.UTC(b.tahun, b.bulan - 1, b.hari) - Date.UTC(a.tahun, a.bulan - 1, a.hari);
+  return Math.round(ms / 86_400_000);
 }
 
 /**

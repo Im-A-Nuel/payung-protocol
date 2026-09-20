@@ -1,3 +1,5 @@
+import type { CSSProperties } from "react";
+
 import type { HariHujan } from "@/lib/api";
 import { formatHari, formatTanggalPendek } from "@/lib/format";
 
@@ -78,10 +80,15 @@ export function GrafikHujan({
           const y = yDari(h.mm);
           const tinggi = Math.max(BASELINE - y, h.mm > 0 ? 3 : 2);
           const atas = BASELINE - tinggi;
+          // The last bar is the most recent day the oracle has settled, which
+          // is the one a driver is actually checking on.
+          const kemarin = i === hari.length - 1;
 
           return (
             <g key={h.dayIndex}>
               <path
+                className="batang"
+                style={{ "--tunda": `${i * 60}ms` } as CSSProperties}
                 d={batangMembulat(x, atas, LEBAR_BATANG, tinggi, 4)}
                 fill={h.isRainDay ? "var(--color-uang)" : "var(--color-hujan)"}
               />
@@ -100,10 +107,10 @@ export function GrafikHujan({
                 y={LABEL_HARI_Y}
                 textAnchor="middle"
                 fontSize="11"
-                fontWeight="600"
-                fill="var(--color-abu)"
+                fontWeight={kemarin ? "800" : "600"}
+                fill={kemarin ? "var(--color-tinta)" : "var(--color-abu)"}
               >
-                {formatHari(h.date)}
+                {kemarin ? "Kemarin" : formatHari(h.date)}
               </text>
             </g>
           );

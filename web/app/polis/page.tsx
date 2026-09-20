@@ -1,13 +1,13 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, type CSSProperties } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 
 import { getPolicy, getZoneRain } from "@/lib/api";
 import { useAkun } from "@/lib/akun";
-import { formatTanggalPanjang } from "@/lib/format";
+import { formatTanggalPanjang, selisihHari } from "@/lib/format";
 import { pesanGalat } from "@/lib/galat";
 import { GrafikHujan } from "@/components/grafik-hujan";
 import { Galat, JudulHalaman, Kartu, Kosong, Memuat } from "@/components/ui";
@@ -93,21 +93,44 @@ function IsiPolis() {
   const kuotaTerpakai = p.payoutsThisWeek;
   const kuotaTotal = p.maxDaysPerWeek;
 
+  const totalHari = selisihHari(p.startDate, p.endDate);
+  const terpakai = Math.min(Math.max(totalHari - p.daysLeft, 0), totalHari);
+  const persenJalan = totalHari > 0 ? (terpakai / totalHari) * 100 : 0;
+  // A policy bought today starts tomorrow, so daysLeft briefly exceeds its
+  // own length. A payout already landed means it plainly started.
+  const belumMulai = p.daysLeft > totalHari && p.payoutsThisWeek === 0;
+
   return (
     <>
       <JudulHalaman judul="Polis kamu" />
 
-      <Kartu>
+      <Kartu className="masuk">
         <p className="text-[13px] font-semibold tracking-wide text-abu uppercase">{p.zoneName}</p>
-        <p className="mt-1 text-[32px] leading-tight font-extrabold">
-          Sisa {p.daysLeft} hari
-        </p>
+        <p className="mt-1 text-[32px] leading-tight font-extrabold">Sisa {p.daysLeft} hari</p>
         <p className="mt-1 text-[14px] text-abu">
           Berlaku {formatTanggalPanjang(p.startDate)} sampai {formatTanggalPanjang(p.endDate)}
         </p>
+
+        <div
+          className="mt-4 h-2 w-full overflow-hidden rounded-full bg-garis"
+          role="img"
+          aria-label={
+            belumMulai
+              ? "Perlindungan belum mulai"
+              : `Sudah jalan ${terpakai} dari ${totalHari} hari`
+          }
+        >
+          <div
+            className="h-full rounded-full bg-langit transition-[width] duration-700 ease-out"
+            style={{ width: `${persenJalan}%` }}
+          />
+        </div>
+        <p className="mt-2 text-[13px] text-abu">
+          {belumMulai ? "Mulai melindungi besok pagi" : `Sudah jalan ${terpakai} dari ${totalHari} hari`}
+        </p>
       </Kartu>
 
-      <Kartu className="mt-3">
+      <Kartu className="masuk mt-3" style={{ "--tunda": "80ms" } as CSSProperties}>
         <div className="flex items-baseline justify-between gap-3">
           <p className="text-[15px] font-bold">Jatah bayar minggu ini</p>
           <p className="angka text-[15px] font-extrabold">
@@ -128,7 +151,7 @@ function IsiPolis() {
         </p>
       </Kartu>
 
-      <Kartu className="mt-3">
+      <Kartu className="masuk mt-3" style={{ "--tunda": "160ms" } as CSSProperties}>
         <p className="text-[15px] font-bold">Hujan 7 hari terakhir</p>
         <p className="mb-3 text-[13px] text-abu">di {p.zoneName}</p>
 
