@@ -49,16 +49,16 @@ Catatan: hari 11 sampai 13 di atas sengaja diberi 4 tanggal untuk 3 slot agar ad
 **Goal**: Backend Go bisa membaca hujan, menulis ke chain, memicu settle, dan menyajikan data ke frontend.
 
 ### Tasks
-- [ ] Go module, chi, pgx, sqlc, migrasi tabel di SCHEMA.md
-- [ ] `abigen` bindings dari ABI Foundry
-- [ ] `internal/rain`: client Open-Meteo Forecast (`past_days=2`, `daily=precipitation_sum`, `timezone=Asia/Jakarta`) dan Archive (3 tahun)
-- [ ] `internal/chain`: signer oracle, `SubmitRainfall`, `Settle`, `SetPremium`, `Faucet`, retry dengan backoff, tulis ke `oracle_runs`
-- [ ] `cmd/oracle`: untuk setiap zona, ambil hujan kemarin, upsert `rain_observations`, submit, settle jika >= ambang, idempotent lewat `oracle_runs` unique
-- [ ] `internal/indexer`: poll event `PolicyBought`, `PayoutSent`, `PayoutSkipped`, `PolicyExpired` dari `last_block`, tulis ke `policies` dan `payouts`
-- [ ] `cmd/api`: `GET /zones`, `GET /zones/:id/rain`, `GET /drivers/:address/policy`, `GET /drivers/:address/payouts`, `POST /faucet`
-- [ ] `POST /admin/simulate-rain` dan `POST /admin/oracle/run` dengan `X-Admin-Key`, nonaktif saat `ENV=production`
+- [x] Go module, chi, pgx, sqlc, migrasi tabel di SCHEMA.md
+- [x] `abigen` bindings dari ABI Foundry
+- [x] `internal/rain`: client Open-Meteo Forecast (`past_days=2`, `daily=precipitation_sum`, `timezone=Asia/Jakarta`) dan Archive (3 tahun)
+- [x] `internal/chain`: signer oracle, `SubmitRainfall`, `Settle`, `SetPremium`, `Faucet`, retry dengan backoff, tulis ke `oracle_runs`
+- [x] `cmd/oracle`: untuk setiap zona, ambil hujan kemarin, upsert `rain_observations`, submit, settle jika >= ambang, idempotent lewat `oracle_runs` unique
+- [x] `internal/indexer`: poll event `PolicyBought`, `PayoutSent`, `PayoutSkipped`, `PolicyExpired` dari `last_block`, tulis ke `policies` dan `payouts`
+- [x] `cmd/api`: `GET /zones`, `GET /zones/:id/rain`, `GET /drivers/:address/policy`, `GET /drivers/:address/payouts`, `POST /faucet`
+- [x] `POST /admin/simulate-rain` dan `POST /admin/oracle/run` dengan `X-Admin-Key`, nonaktif saat `ENV=production`
 - [ ] Deploy ke Railway dengan Postgres, cron harian 06:00 WIB untuk `cmd/oracle`
-- [ ] GitHub Actions: `go test ./...`
+- [x] GitHub Actions: `go test ./...`
 
 **Definition of done fase 2**: `curl POST /admin/simulate-rain` menghasilkan `PayoutSent` di BscScan dan `GET /drivers/:address/payouts` menampilkannya.
 

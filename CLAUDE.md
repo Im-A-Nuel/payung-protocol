@@ -25,7 +25,7 @@ go run ./cmd/migrate
 go run ./cmd/api                 # :8080
 go run ./cmd/oracle --once       # yesterday's rain for all zones
 sqlc generate                    # after editing internal/store/queries/*.sql
-abigen --abi ../contracts/out/PayungPool.sol/PayungPool.abi.json --pkg chain --type PayungPool --out internal/chain/payungpool.go
+./scripts/gen-abi.sh              # after editing contracts/src/*.sol; regenerates internal/chain/*.go
 
 # Frontend
 cd web && pnpm install && pnpm dev
@@ -82,4 +82,11 @@ docs/                            REQUIREMENTS, ARCHITECTURE, SCHEMA, ROADMAP
 - Do not write UI copy in English.
 
 ## Current Focus
-Phase 1: `PayungPool.sol` and `IDRP.sol` with all 10 test cases from `docs/SCHEMA.md` passing, then deploy and verify on opBNB testnet.
+Phase 1 (contracts) and Phase 2 (oracle & API) are code-complete and tested locally (Foundry tests green; backend `go test ./...` green against Postgres; full vertical slice verified end-to-end on a local anvil chain: buy policy -> admin simulate-rain -> submit+settle -> indexer -> driver dashboard endpoints).
+
+Still needed before Phase 3 (frontend):
+- Deploy `PayungPool`/`IDRP` to opBNB testnet and verify on BscScan (needs real `PRIVATE_KEY`, `BSCSCAN_API_KEY`).
+- Deploy backend (`cmd/api`, `cmd/oracle`) to Railway with Postgres, oracle cron at 06:00 WIB (needs Railway credentials, `ORACLE_PRIVATE_KEY`, `FAUCET_PRIVATE_KEY`).
+- Point `POOL_ADDRESS`/`IDRP_ADDRESS`/`DEPLOY_BLOCK` at the real deployment once it exists.
+
+Phase 4 (AI pricing/explanations) is intentionally not implemented yet: `GET /zones` returns a fallback premium/narrative until `internal/pricing` and `internal/ai` land.

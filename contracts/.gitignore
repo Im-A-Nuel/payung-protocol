@@ -1,7 +1,7 @@
 # Foundry
 cache/
 out/
-broadcast/*/*/run-latest.json
+broadcast/
 
 # dotenv
 .env
