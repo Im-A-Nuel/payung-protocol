@@ -1,6 +1,9 @@
 package chain
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 // DayIndex and WeekIndex must compute identically to PayungPool.today() and
 // week_index in Solidity. Never change this formula without updating both
@@ -24,10 +27,22 @@ func WeekIndex(dayIndex uint32) uint32 {
 }
 
 // DateStringWIB returns the "YYYY-MM-DD" WIB calendar date for a day_index,
-// computed arithmetically (no timezone database lookup needed): the UTC
-// instant of that day's WIB midnight, formatted in UTC, is exactly that WIB
-// calendar date.
+// computed arithmetically so no timezone database is needed.
+//
+// day_index d covers the unix range [d*86400-7h, (d+1)*86400-7h), and at any
+// instant in it the WIB wall clock reads unix+7h. Rendering d*86400 in UTC
+// therefore prints exactly the WIB calendar date that day_index names.
 func DateStringWIB(dayIndex uint32) string {
-	unixAtWibMidnight := int64(dayIndex)*secondsPerDay - wibOffsetSeconds
-	return time.Unix(unixAtWibMidnight, 0).UTC().Format("2006-01-02")
+	return time.Unix(int64(dayIndex)*secondsPerDay, 0).UTC().Format("2006-01-02")
+}
+
+// DayIndexFromDateWIB is the exact inverse of DateStringWIB. Callers that
+// accept a date from the outside (the admin endpoints) must go through this
+// rather than parsing by hand, so the two directions cannot drift apart.
+func DayIndexFromDateWIB(tanggal string) (uint32, error) {
+	t, err := time.Parse(time.DateOnly, tanggal)
+	if err != nil {
+		return 0, fmt.Errorf("chain.DayIndexFromDateWIB: %w", err)
+	}
+	return DayIndex(t.Unix()), nil
 }

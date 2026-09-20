@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/go-chi/chi/v5"
 
 	"github.com/im-a-nuel/payung-protocol/backend/internal/chain"
@@ -24,6 +25,7 @@ type Server struct {
 	OracleChain  *chain.Client // also used for indexer.Sync's LatestBlock lookups
 	Oracle       *oracle.Service
 	Indexer      *indexer.Service
+	PoolAddress  common.Address
 	AdminKey     string
 	IsProduction bool
 
@@ -39,6 +41,7 @@ func NewRouter(s *Server) http.Handler {
 		r.Get("/zones/{id}/rain", s.handleZoneRain)
 		r.Get("/drivers/{address}/policy", s.handleDriverPolicy)
 		r.Get("/drivers/{address}/payouts", s.handleDriverPayouts)
+		r.Get("/drivers/{address}/wallet", s.handleDriverWallet)
 		r.Post("/faucet", s.handleFaucet)
 
 		if !s.IsProduction {

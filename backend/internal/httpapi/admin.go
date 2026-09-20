@@ -48,12 +48,11 @@ func (s *Server) handleSimulateRain(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	date, err := time.Parse("2006-01-02", req.Date)
+	dayIndex, err := chain.DayIndexFromDateWIB(req.Date)
 	if err != nil {
 		writeError(w, http.StatusBadRequest, "INTERNAL", "Format tanggal harus YYYY-MM-DD.")
 		return
 	}
-	dayIndex := chain.DayIndex(date.Unix())
 
 	result := s.Oracle.ProcessZoneDay(ctx, req.ZoneID, dayIndex, req.Mm, "simulated")
 	if result.Err != nil {
@@ -91,12 +90,12 @@ func (s *Server) handleOracleRun(w http.ResponseWriter, r *http.Request) {
 
 	dayIndex := chain.DayIndex(time.Now().Unix()) - 1 // default: yesterday
 	if v := r.URL.Query().Get("date"); v != "" {
-		date, err := time.Parse("2006-01-02", v)
+		dari, err := chain.DayIndexFromDateWIB(v)
 		if err != nil {
 			writeError(w, http.StatusBadRequest, "INTERNAL", "Format tanggal harus YYYY-MM-DD.")
 			return
 		}
-		dayIndex = chain.DayIndex(date.Unix())
+		dayIndex = dari
 	}
 
 	results, err := s.Oracle.RunDaily(ctx, dayIndex)

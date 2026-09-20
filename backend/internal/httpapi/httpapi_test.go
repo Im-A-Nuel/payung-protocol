@@ -18,8 +18,10 @@ import (
 )
 
 // testPool connects to the local Postgres used by every backend integration
-// test and cleans up rows this test file inserts, keyed by IDs far outside
-// the seeded/production ranges to avoid colliding with other tests.
+// test. Fixture rows use IDs far outside the real ranges, and every test
+// removes its own afterwards: the same database backs local demo runs, and a
+// leftover row dated in the year 4461 sorts ahead of real data in any
+// "last N days" query.
 func testPool(t *testing.T) *pgxpool.Pool {
 	t.Helper()
 	dbURL := os.Getenv("TEST_DATABASE_URL")
@@ -32,6 +34,18 @@ func testPool(t *testing.T) *pgxpool.Pool {
 	}
 	t.Cleanup(pool.Close)
 	return pool
+}
+
+// bersihkan removes fixture rows once the test is done.
+func bersihkan(t *testing.T, pool *pgxpool.Pool, perintah ...string) {
+	t.Helper()
+	t.Cleanup(func() {
+		for _, sql := range perintah {
+			if _, err := pool.Exec(context.Background(), sql); err != nil {
+				t.Logf("cleanup failed for %q: %v", sql, err)
+			}
+		}
+	})
 }
 
 // Bantul (zone 3) is seeded by migrations/0002_seed_zones.sql with
@@ -67,6 +81,7 @@ func TestHandleZoneRain_ReturnsChronologicalOrder(t *testing.T) {
 	pool := testPool(t)
 	ctx := context.Background()
 	srv := &Server{Queries: store.New(pool)}
+	bersihkan(t, pool, "DELETE FROM rain_observations WHERE day_index >= 910000")
 
 	const baseDay = 910000
 	for i, mm := range []int32{5, 25, 0} {
@@ -136,6 +151,7 @@ func TestHandleDriverPolicy_ActivePolicy_ReturnsDetails(t *testing.T) {
 
 	const holder = "0x00000000000000000000000000000000000000ab"
 	const policyID = 910001
+	bersihkan(t, pool, "DELETE FROM payouts WHERE policy_id = 910001", "DELETE FROM policies WHERE policy_id = 910001")
 	today := chain.DayIndex(time.Now().Unix())
 
 	_, err := pool.Exec(ctx, `
@@ -182,6 +198,7 @@ func TestHandleDriverPayouts_ReturnsHistory(t *testing.T) {
 
 	const holder = "0x00000000000000000000000000000000000000cd"
 	const policyID = 910002
+	bersihkan(t, pool, "DELETE FROM payouts WHERE policy_id = 910002", "DELETE FROM policies WHERE policy_id = 910002")
 	today := chain.DayIndex(time.Now().Unix())
 
 	_, err := pool.Exec(ctx, `
@@ -251,6 +268,7 @@ func TestHandleFaucet_Cooldown_Returns429(t *testing.T) {
 	srv := &Server{Queries: store.New(pool), FaucetCooldownHours: 24}
 
 	const addr = "0x00000000000000000000000000000000000000ee"
+	bersihkan(t, pool, "DELETE FROM faucet_claims WHERE address = '0x00000000000000000000000000000000000000ee'")
 	_, err := pool.Exec(ctx, `
 		INSERT INTO faucet_claims (address, last_claim_at) VALUES ($1, now())
 		ON CONFLICT (address) DO UPDATE SET last_claim_at = now()

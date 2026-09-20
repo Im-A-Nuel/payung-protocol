@@ -165,6 +165,27 @@ func (c *Client) Faucet(ctx context.Context, to common.Address) (string, error) 
 	return tx.Hash().Hex(), nil
 }
 
+// BalanceOf returns an address's IDRP balance in wei. The web app reads it
+// through the API rather than over RPC, so this is the only place that
+// balance is fetched.
+func (c *Client) BalanceOf(ctx context.Context, holder common.Address) (*big.Int, error) {
+	saldo, err := c.IDRP.BalanceOf(&bind.CallOpts{Context: ctx}, holder)
+	if err != nil {
+		return nil, fmt.Errorf("chain.BalanceOf: %w", err)
+	}
+	return saldo, nil
+}
+
+// Allowance returns how much IDRP the holder has approved the pool to pull,
+// so the web app knows whether an approval is still needed before buying.
+func (c *Client) Allowance(ctx context.Context, holder, spender common.Address) (*big.Int, error) {
+	izin, err := c.IDRP.Allowance(&bind.CallOpts{Context: ctx}, holder, spender)
+	if err != nil {
+		return nil, fmt.Errorf("chain.Allowance: %w", err)
+	}
+	return izin, nil
+}
+
 // LatestBlock returns the current block number, used by the indexer to
 // bound its scan range.
 func (c *Client) LatestBlock(ctx context.Context) (uint64, error) {

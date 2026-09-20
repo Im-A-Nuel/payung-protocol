@@ -57,7 +57,21 @@ func testQueries(t *testing.T) *store.Queries {
 	if err != nil {
 		t.Fatalf("connect: %v", err)
 	}
-	t.Cleanup(pool.Close)
+	// Fixture days sit far in the future so they never collide with real
+	// data, which also means they would sort ahead of it in any "last N
+	// days" query if left behind.
+	t.Cleanup(func() {
+		ctx := context.Background()
+		for _, sql := range []string{
+			"DELETE FROM oracle_runs WHERE day_index >= 900000",
+			"DELETE FROM rain_observations WHERE day_index >= 900000",
+		} {
+			if _, err := pool.Exec(ctx, sql); err != nil {
+				t.Logf("cleanup failed for %q: %v", sql, err)
+			}
+		}
+		pool.Close()
+	})
 	return store.New(pool)
 }
 

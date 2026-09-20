@@ -1,6 +1,9 @@
 package chain
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
 func TestDayIndex_MatchesReferenceFormula(t *testing.T) {
 	cases := []int64{0, 1_800_000_000, 1_758_200_000, 4_102_444_800}
@@ -30,6 +33,44 @@ func TestDayIndex_AroundWibMidnightBoundary(t *testing.T) {
 	}
 	if dayAfter != dayAt {
 		t.Errorf("day after boundary = %d, want same as dayAt = %d", dayAfter, dayAt)
+	}
+}
+
+// DateStringWIB and DayIndexFromDateWIB have to be exact inverses. They were
+// not once: DateStringWIB subtracted the WIB offset from a day boundary and
+// landed a day early, so the oracle looked up the wrong calendar day in the
+// Open-Meteo response and settled a day nobody was covered for.
+func TestDateStringWIB_RoundTripsWithDayIndexFromDateWIB(t *testing.T) {
+	for _, day := range []uint32{0, 1, 19000, 20716, 20717, 20718, 25000} {
+		tanggal := DateStringWIB(day)
+		balik, err := DayIndexFromDateWIB(tanggal)
+		if err != nil {
+			t.Fatalf("DayIndexFromDateWIB(%q): %v", tanggal, err)
+		}
+		if balik != day {
+			t.Errorf("day %d -> %q -> %d, want %d", day, tanggal, balik, day)
+		}
+	}
+}
+
+// An oracle run at 06:00 WIB on 17 Sep 2026 must process 16 Sep 2026, the day
+// that just finished, and call it by that name.
+func TestDateStringWIB_YesterdayFromSixAmWib(t *testing.T) {
+	// 06:00 WIB on 2026-09-17 is 23:00 UTC on 2026-09-16.
+	pagi := time.Date(2026, 9, 16, 23, 0, 0, 0, time.UTC).Unix()
+
+	hariIni := DayIndex(pagi)
+	if got := DateStringWIB(hariIni); got != "2026-09-17" {
+		t.Errorf("hari ini = %q, want 2026-09-17", got)
+	}
+	if got := DateStringWIB(hariIni - 1); got != "2026-09-16" {
+		t.Errorf("kemarin = %q, want 2026-09-16", got)
+	}
+}
+
+func TestDayIndexFromDateWIB_RejectsGarbage(t *testing.T) {
+	if _, err := DayIndexFromDateWIB("20 September 2026"); err == nil {
+		t.Error("expected an error for a non ISO date")
 	}
 }
 

@@ -31,14 +31,14 @@ Catatan: hari 11 sampai 13 di atas sengaja diberi 4 tanggal untuk 3 slot agar ad
 **Goal**: Uang bisa masuk pool, hujan bisa dilaporkan, payout bisa dieksekusi, semuanya teruji.
 
 ### Tasks
-- [ ] Init monorepo: `contracts/`, `backend/`, `web/`, `docs/`, `CLAUDE.md`
-- [ ] Foundry init, install OpenZeppelin
-- [ ] `IDRP.sol` dengan `faucet` (FAUCET_ROLE) dan `mint` (admin)
-- [ ] `PayungPool.sol` sesuai SCHEMA.md: roles, Zone, Policy, buyPolicy, submitRainfall, settle, pruneExpired, fundPool, view functions, custom errors
-- [ ] 10 test case di SCHEMA.md lolos, plus fuzz sederhana untuk `today()` dan week boundary
-- [ ] `Deploy.s.sol`: deploy IDRP, deploy Pool, buat 5 zona, grant ORACLE_ROLE ke alamat oracle, mint 5.000.000 IDRP ke deployer, fundPool 2.000.000 IDRP
+- [x] Init monorepo: `contracts/`, `backend/`, `web/`, `docs/`, `CLAUDE.md`
+- [x] Foundry init, install OpenZeppelin
+- [x] `IDRP.sol` dengan `faucet` (FAUCET_ROLE) dan `mint` (admin)
+- [x] `PayungPool.sol` sesuai SCHEMA.md: roles, Zone, Policy, buyPolicy, submitRainfall, settle, pruneExpired, fundPool, view functions, custom errors
+- [x] 10 test case di SCHEMA.md lolos, plus fuzz sederhana untuk `today()` dan week boundary
+- [x] `Deploy.s.sol`: deploy IDRP, deploy Pool, buat 5 zona, grant ORACLE_ROLE ke alamat oracle, mint 5.000.000 IDRP ke deployer, fundPool 2.000.000 IDRP
 - [ ] Deploy ke opBNB testnet, verify di BscScan, simpan alamat di `docs/README.md` dan `.env.example`
-- [ ] GitHub Actions: `forge test` on push
+- [x] GitHub Actions: `forge test` on push
 
 **Definition of done fase 1**: alamat kontrak terverifikasi bisa dibuka di BscScan dan `forge test` hijau.
 
@@ -69,13 +69,13 @@ Catatan: hari 11 sampai 13 di atas sengaja diberi 4 tanggal untuk 3 slot agar ad
 **Goal**: Driver bisa menjalankan seluruh alur dari HP tanpa tahu apa itu gas.
 
 ### Tasks
-- [ ] Next.js 15, Tailwind, Privy (Google + email), wagmi + viem, chain config opBNB testnet
-- [ ] Layar 1 `/`: pilih zona (kartu dengan premi bulan ini dan narasi), pilih minggu, tombol "Lindungi minggu ini"
-- [ ] Faucet in-app: tombol "Ambil IDRP testnet" memanggil `POST /faucet`, tampil hanya jika saldo < premi
+- [x] Next.js 15, Tailwind, Privy (Google + email), wagmi + viem, chain config opBNB testnet
+- [x] Layar 1 `/`: pilih zona (kartu dengan premi bulan ini dan narasi), pilih minggu, tombol "Lindungi minggu ini"
+- [x] Faucet in-app: tombol "Ambil IDRP testnet" memanggil `POST /faucet`, tampil hanya jika saldo < premi
 - [ ] Gasless: integrasi MegaFuel sponsor policy untuk `buyPolicy`. Batas waktu setengah hari. Jika lewat, pindah ke fallback relayer (`POST /relay/buy-policy` + EIP-712 signing)
-- [ ] Layar 2 `/polis`: polis aktif, sisa hari, hujan 7 hari dengan garis ambang, kuota payout minggu ini
-- [ ] Layar 3 `/riwayat`: daftar payout, nominal rupiah, link BscScan, penjelasan (placeholder sampai fase 4)
-- [ ] PWA manifest, ikon, service worker minimal
+- [x] Layar 2 `/polis`: polis aktif, sisa hari, hujan 7 hari dengan garis ambang, kuota payout minggu ini
+- [x] Layar 3 `/riwayat`: daftar payout, nominal rupiah, link BscScan, penjelasan (placeholder sampai fase 4)
+- [x] PWA manifest, ikon, service worker minimal
 - [ ] Deploy ke Vercel
 - [ ] **Checkpoint hari 7 malam**: rekam alur end-to-end di HP asli sebagai bukti. Kalau gagal, hari 8 dipakai untuk ini.
 

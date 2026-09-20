@@ -22,7 +22,21 @@ import (
 	"github.com/im-a-nuel/payung-protocol/backend/internal/store"
 )
 
-const httpShutdownTimeout = 5 * time.Second
+const (
+	httpShutdownTimeout = 5 * time.Second
+	indexerSyncInterval = 15 * time.Second
+)
+
+func syncIndexer(ctx context.Context, chainClient *chain.Client, indexerSvc *indexer.Service) {
+	latest, err := chainClient.LatestBlock(ctx)
+	if err != nil {
+		log.Printf("api: indexer sync skipped, could not read latest block: %v", err)
+		return
+	}
+	if err := indexerSvc.Sync(ctx, latest); err != nil {
+		log.Printf("api: indexer sync failed: %v", err)
+	}
+}
 
 func main() {
 	cfg, err := config.LoadAPIConfig()
@@ -61,6 +75,7 @@ func main() {
 		OracleChain:         oracleChain,
 		Oracle:              oracleSvc,
 		Indexer:             indexerSvc,
+		PoolAddress:         poolAddr,
 		AdminKey:            cfg.AdminKey,
 		IsProduction:        cfg.IsProduction(),
 		FaucetCooldownHours: cfg.FaucetCooldownHours,
@@ -69,11 +84,22 @@ func main() {
 	// Catch up before serving so the very first requests already reflect
 	// on-chain state, per ARCHITECTURE.md ("the indexer catches up on
 	// every oracle run and on API cold start").
-	if latest, err := oracleChain.LatestBlock(ctx); err != nil {
-		log.Printf("api: initial indexer sync skipped, could not read latest block: %v", err)
-	} else if err := indexerSvc.Sync(ctx, latest); err != nil {
-		log.Printf("api: initial indexer sync failed: %v", err)
-	}
+	syncIndexer(ctx, oracleChain, indexerSvc)
+
+	// A driver who just bought a policy opens the dashboard seconds later,
+	// and nothing else would trigger a sync between those two moments.
+	go func() {
+		tick := time.NewTicker(indexerSyncInterval)
+		defer tick.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-tick.C:
+				syncIndexer(ctx, oracleChain, indexerSvc)
+			}
+		}
+	}()
 
 	httpServer := &http.Server{
 		Addr:    cfg.ListenAddr,

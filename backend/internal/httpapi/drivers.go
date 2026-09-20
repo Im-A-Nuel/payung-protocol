@@ -78,6 +78,39 @@ func (s *Server) handleDriverPolicy(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+type walletResponse struct {
+	Balance   string `json:"balance"`
+	Allowance string `json:"allowance"`
+}
+
+// handleDriverWallet exists because the web app must not read the chain
+// itself (docs/ARCHITECTURE.md), yet Phase 3 needs the IDRP balance to
+// decide whether to offer the faucet, and the allowance to decide whether
+// an approval is still needed before buying.
+func (s *Server) handleDriverWallet(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	address, ok := parseAddress(chi.URLParam(r, "address"))
+	if !ok {
+		writeError(w, http.StatusBadRequest, "INVALID_ADDRESS", "Alamat wallet tidak valid.")
+		return
+	}
+	holder := common.HexToAddress(address)
+
+	saldo, err := s.OracleChain.BalanceOf(ctx, holder)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "INTERNAL", "Gagal membaca saldo.")
+		return
+	}
+	izin, err := s.OracleChain.Allowance(ctx, holder, s.PoolAddress)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "INTERNAL", "Gagal membaca izin saldo.")
+		return
+	}
+
+	writeJSON(w, http.StatusOK, walletResponse{Balance: saldo.String(), Allowance: izin.String()})
+}
+
 type payoutResponse struct {
 	Date        string  `json:"date"`
 	ZoneName    string  `json:"zoneName"`
