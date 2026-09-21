@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from "react";
 
 type Varian = "utama" | "kedua" | "halus";
 
@@ -28,7 +28,7 @@ export function Tombol({
       {...props}
       disabled={disabled || sedangProses}
       aria-busy={sedangProses || undefined}
-      className={`flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl px-5 text-[15px] font-bold transition-colors ${GAYA[varian]} ${className}`}
+      className={`tekan flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl px-5 text-[15px] font-bold transition-colors ${GAYA[varian]} ${className}`}
     >
       {sedangProses ? (
         <>
@@ -51,9 +51,21 @@ function Pemuat() {
   );
 }
 
-export function Kartu({ children, className = "" }: { children: ReactNode; className?: string }) {
+export function Kartu({
+  children,
+  className = "",
+  id,
+  style,
+}: {
+  children: ReactNode;
+  className?: string;
+  id?: string;
+  style?: CSSProperties;
+}) {
   return (
-    <div className={`rounded-2xl border border-garis bg-kartu p-4 ${className}`}>{children}</div>
+    <div id={id} style={style} className={`rounded-2xl border border-garis bg-kartu p-4 ${className}`}>
+      {children}
+    </div>
   );
 }
 
@@ -89,6 +101,46 @@ export function Galat({ pesan, onCoba }: { pesan: string; onCoba?: () => void })
         </button>
       ) : null}
     </Kartu>
+  );
+}
+
+/**
+ * The confirmation a driver gets after something worked. CLAUDE.md is
+ * explicit that the word they see is "berhasil", never a transaction hash.
+ */
+export function Berhasil({ judul, pesan, anak }: { judul: string; pesan?: string; anak?: ReactNode }) {
+  return (
+    <div className="py-2 text-center">
+      <span className="lingkar mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-uang-muda">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            className="centang"
+            d="M5 12.5 10 17.5 19 7.5"
+            stroke="var(--color-uang)"
+            strokeWidth="2.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </span>
+
+      <p className="masuk mt-3 text-[20px] font-extrabold" style={{ "--tunda": "240ms" } as CSSProperties}>
+        {judul}
+      </p>
+      {pesan ? (
+        <p
+          className="masuk mt-1 text-[15px] leading-relaxed text-abu"
+          style={{ "--tunda": "320ms" } as CSSProperties}
+        >
+          {pesan}
+        </p>
+      ) : null}
+      {anak ? (
+        <div className="masuk mt-5" style={{ "--tunda": "400ms" } as CSSProperties}>
+          {anak}
+        </div>
+      ) : null}
+    </div>
   );
 }
 

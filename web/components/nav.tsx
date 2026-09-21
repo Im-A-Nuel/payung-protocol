@@ -15,7 +15,7 @@ export function Nav() {
   return (
     <nav
       aria-label="Menu utama"
-      className="fixed inset-x-0 bottom-0 z-20 border-t border-garis bg-kartu/95 backdrop-blur"
+      className="fixed inset-x-0 bottom-0 z-20 border-t border-garis bg-kartu"
       style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
       <ul className="mx-auto flex w-full max-w-[520px]">
@@ -26,10 +26,16 @@ export function Nav() {
               <Link
                 href={href}
                 aria-current={aktif ? "page" : undefined}
-                className={`flex min-h-[60px] flex-col items-center justify-center gap-1 text-[13px] font-semibold transition-colors ${
+                className={`tekan relative flex min-h-[60px] flex-col items-center justify-center gap-1 text-[13px] font-semibold transition-colors ${
                   aktif ? "text-langit" : "text-abu"
                 }`}
               >
+                {aktif ? (
+                  <span
+                    aria-hidden="true"
+                    className="absolute top-0 h-[3px] w-8 rounded-b-full bg-langit"
+                  />
+                ) : null}
                 <Ikon aktif={aktif} />
                 {label}
               </Link>
