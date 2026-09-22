@@ -5,9 +5,9 @@ import {Script, console} from "forge-std/Script.sol";
 import {IDRP} from "../src/IDRP.sol";
 import {PayungPool} from "../src/PayungPool.sol";
 
-/// @notice Deploys IDRP + PayungPool, seeds the 5 MVP zones, grants ORACLE_ROLE,
+/// @notice Deploys IDRP + PayungPool, seeds the 5 MVP zones, grants operational roles,
 ///         mints deployer working capital and funds the pool.
-/// @dev Reads PRIVATE_KEY (deployer/admin) and ORACLE_ADDRESS from env.
+/// @dev Reads PRIVATE_KEY (deployer/admin), ORACLE_ADDRESS and FAUCET_ADDRESS from env.
 contract DeployScript is Script {
     uint256 constant INITIAL_PREMIUM_PER_WEEK = 5_000 ether;
     uint16 constant THRESHOLD_MM = 20;
@@ -20,6 +20,7 @@ contract DeployScript is Script {
     function run() external {
         uint256 deployerKey = vm.envUint("PRIVATE_KEY");
         address oracle = vm.envAddress("ORACLE_ADDRESS");
+        address faucet = vm.envAddress("FAUCET_ADDRESS");
         address deployer = vm.addr(deployerKey);
 
         vm.startBroadcast(deployerKey);
@@ -28,6 +29,7 @@ contract DeployScript is Script {
         PayungPool pool = new PayungPool(address(idrp), deployer);
 
         pool.grantRole(pool.ORACLE_ROLE(), oracle);
+        idrp.grantRole(idrp.FAUCET_ROLE(), faucet);
 
         pool.createZone(1, "Yogyakarta", INITIAL_PREMIUM_PER_WEEK, THRESHOLD_MM, PAYOUT_PER_DAY, MAX_DAYS_PER_WEEK);
         pool.createZone(2, "Sleman", INITIAL_PREMIUM_PER_WEEK, THRESHOLD_MM, PAYOUT_PER_DAY, MAX_DAYS_PER_WEEK);
@@ -44,5 +46,6 @@ contract DeployScript is Script {
         console.log("IDRP deployed at:", address(idrp));
         console.log("PayungPool deployed at:", address(pool));
         console.log("Oracle role granted to:", oracle);
+        console.log("Faucet role granted to:", faucet);
     }
 }
