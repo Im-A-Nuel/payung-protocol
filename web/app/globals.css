@@ -28,12 +28,14 @@
 }
 
 html {
-  background: var(--color-kertas);
+  background: #edf4fd;
   -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--color-kertas);
+  background:
+    radial-gradient(circle at 50% -10%, rgba(255, 255, 255, 0.95) 0 13rem, transparent 30rem),
+    linear-gradient(180deg, #f8fbff 0%, #edf4fd 52%, #f7faff 100%);
   color: var(--color-tinta);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -52,6 +54,31 @@ body {
 button,
 a[role="button"] {
   touch-action: manipulation;
+}
+
+/* The sky wash appears once on the simulator: it gives rainfall a visual
+   context while transactional controls remain on high-contrast white. */
+.langit-payung {
+  background:
+    radial-gradient(circle at 108% 3%, rgba(183, 231, 246, 0.45) 0 2.25rem, transparent 8rem),
+    radial-gradient(circle at 8% 92%, rgba(3, 54, 134, 0.54) 0 3rem, transparent 12rem),
+    linear-gradient(145deg, #0b5fd0 0%, #17649c 54%, #176ead 100%);
+}
+
+.payung-simulator {
+  border: 1px solid rgba(255, 255, 255, 0.92);
+  background: white;
+  border-radius: 32px;
+  box-shadow: 0 22px 55px rgba(51, 104, 161, 0.18);
+}
+
+.payung-next {
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  background:
+    radial-gradient(circle at 92% 8%, rgba(164, 224, 246, 0.56) 0 3rem, transparent 9rem),
+    linear-gradient(135deg, #ffffff 0%, #eaf4ff 100%);
+  border-radius: 28px;
+  box-shadow: 0 14px 36px rgba(70, 116, 162, 0.1);
 }
 
 :where(a, button, input, select, summary):focus-visible {
@@ -82,8 +109,8 @@ a[role="button"] {
   margin-top: -8px;
   border: 4px solid white;
   border-radius: 50%;
-  background: var(--color-langit);
-  box-shadow: 0 0 0 2px var(--color-langit-tua);
+  background: #165bc4;
+  box-shadow: 0 0 0 2px #0b438f;
 }
 
 .rain-range::-moz-range-thumb {
@@ -91,8 +118,8 @@ a[role="button"] {
   height: 20px;
   border: 4px solid white;
   border-radius: 50%;
-  background: var(--color-langit);
-  box-shadow: 0 0 0 2px var(--color-langit-tua);
+  background: #165bc4;
+  box-shadow: 0 0 0 2px #0b438f;
 }
 
 @media (prefers-reduced-motion: reduce) {

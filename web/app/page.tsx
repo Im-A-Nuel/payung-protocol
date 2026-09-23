@@ -44,8 +44,8 @@ export default function Beranda() {
     daftar.length > 0 && daftar.every((z) => z.premiumNarrative === contoh.premiumNarrative);
 
   return (
-    <>
-      <header className="mb-5 flex items-center justify-between gap-3">
+    <div className="home-payung">
+      <header className="mb-5 flex items-center justify-between gap-3 px-1">
         <div className="flex items-center gap-2.5">
           <Logo />
           <span className="text-[22px] font-extrabold tracking-tight">Payung</span>
@@ -58,18 +58,14 @@ export default function Beranda() {
             Keluar
           </button>
         ) : (
-          <span className="text-[12px] font-semibold text-abu">opBNB Testnet</span>
+          <span className="rounded-full border border-white/80 bg-white/70 px-3 py-1.5 text-[12px] font-semibold text-[#48647f]">opBNB Testnet</span>
         )}
       </header>
 
       {!sudahMasuk ? (
-        <section className="mb-6 pt-1">
-          <p className="text-[13px] font-bold text-langit">Untuk pengemudi ojol</p>
-          <h1 className="mt-2 max-w-[430px] text-[clamp(2rem,8vw,2.55rem)] leading-[1.1] font-extrabold tracking-tight">
-            Hujan deras, order sepi?
-          </h1>
-          <p className="mt-3 max-w-[430px] text-[15px] leading-relaxed text-abu">
-            Pilih zona dan geser angka hujan untuk melihat kapan polis membayar. Bisa dicoba tanpa login.
+        <section className="mb-5 px-1">
+          <p className="text-[14px] leading-relaxed text-[#516f8b]">
+            Perlindungan hujan untuk pengemudi ojol, tanpa klaim manual.
           </p>
         </section>
       ) : null}
@@ -112,23 +108,23 @@ export default function Beranda() {
       ) : null}
 
       {!sudahMasuk && terpilih ? (
-        <section className="mt-5 rounded-[26px] bg-tinta p-5 text-white">
-          <p className="text-[13px] font-semibold text-[#aec8ea]">Langkah berikutnya</p>
-          <h2 className="mt-1 text-[21px] font-extrabold">Siap melindungi {terpilih.name}?</h2>
-          <p className="mt-2 text-[14px] leading-relaxed text-[#d7e3f1]">
+        <section className="payung-next mt-5 p-5">
+          <p className="text-[13px] font-semibold text-[#356caa]">Langkah berikutnya</p>
+          <h2 className="mt-1 text-[22px] font-extrabold">Lindungi {terpilih.name}.</h2>
+          <p className="mt-2 text-[14px] leading-relaxed text-[#496784]">
             Premi {formatRupiah(terpilih.premiumPerWeek)} per minggu. Polis mulai besok setelah pembelian berhasil.
           </p>
           {bisaMasuk ? (
             <Tombol
               varian="kedua"
-              className="mt-4 border-transparent"
+              className="mt-4 border-transparent shadow-[0_12px_25px_rgba(20,87,187,0.22)]"
               onClick={masuk}
               disabled={!siap || toWei(terpilih.premiumPerWeek) === 0n}
             >
               {toWei(terpilih.premiumPerWeek) > 0n ? "Masuk untuk beli polis" : "Premi zona belum tersedia"}
             </Tombol>
           ) : (
-            <p className="mt-4 rounded-xl bg-white/10 p-3 text-[13px] leading-relaxed text-white">
+            <p className="mt-4 rounded-2xl bg-[#eaf3ff] p-3 text-[13px] leading-relaxed text-[#315778]">
               Simulasi bisa dicoba sekarang. Pembelian testnet belum aktif karena login belum dikonfigurasi.
             </p>
           )}
@@ -136,8 +132,8 @@ export default function Beranda() {
       ) : null}
 
       {daftar.length > 0 ? (
-        <details className="group mt-5 rounded-2xl border border-garis bg-kartu">
-          <summary className="flex min-h-[56px] cursor-pointer list-none items-center justify-between gap-3 px-4 text-[15px] font-bold text-tinta [&::-webkit-details-marker]:hidden">
+        <details className="group mt-5 rounded-[24px] border border-white/90 bg-white/80 shadow-[0_10px_30px_rgba(78,120,169,0.08)]">
+          <summary className="flex min-h-[60px] cursor-pointer list-none items-center justify-between gap-3 px-5 text-[15px] font-bold text-tinta [&::-webkit-details-marker]:hidden">
             Bandingkan {daftar.length} zona
             <span aria-hidden="true" className="text-[23px] leading-none text-langit transition-transform group-open:rotate-45">+</span>
           </summary>
@@ -159,7 +155,7 @@ export default function Beranda() {
           </div>
         </details>
       ) : null}
-    </>
+    </div>
   );
 }
 
