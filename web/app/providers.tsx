@@ -9,11 +9,14 @@ import { WagmiProvider as WagmiProviderPolos, http } from "wagmi";
 import { AkunPratinjau, AkunPrivy } from "@/lib/akun";
 import { rantai } from "@/lib/contracts";
 
-const PRIVY_APP_ID = process.env.NEXT_PUBLIC_PRIVY_APP_ID ?? "";
+// Privy validates app IDs synchronously and only accepts its 25-character
+// dashboard ID. Keep an invalid deployment in preview mode so an accidental
+// pasted secret or `NAME=value` string cannot fail Next's static build.
+const PRIVY_APP_ID = (process.env.NEXT_PUBLIC_PRIVY_APP_ID ?? "").trim();
 const ALAMAT_PRATINJAU = process.env.NEXT_PUBLIC_PREVIEW_ADDRESS ?? "";
 
-/** True when Privy isn't configured: the app renders read-only instead of crashing. */
-export const MODE_PRATINJAU = PRIVY_APP_ID === "";
+/** True until a valid Privy dashboard App ID is present. */
+export const MODE_PRATINJAU = PRIVY_APP_ID.length !== 25;
 
 const wagmiConfig = createConfig({
   chains: [rantai],
