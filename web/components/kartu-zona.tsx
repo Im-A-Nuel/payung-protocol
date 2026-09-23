@@ -1,5 +1,5 @@
 import type { Zona } from "@/lib/api";
-import { formatRupiah } from "@/lib/format";
+import { formatRupiah, toWei } from "@/lib/format";
 
 export function KartuZona({
   zona,
@@ -30,15 +30,18 @@ export function KartuZona({
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-[17px] font-extrabold">{zona.name}</p>
+          {terpilih ? <p className="mt-0.5 text-[12px] font-bold text-langit">Dipilih</p> : null}
           {tampilkanAturan ? (
             <p className="mt-0.5 text-[13px] text-abu">
-              Bayar {formatRupiah(zona.payoutPerDay)} tiap hari hujan lewat {zona.thresholdMm} mm
+              Bayar {formatRupiah(zona.payoutPerDay)} tiap hari hujan mencapai {zona.thresholdMm} mm
             </p>
           ) : null}
         </div>
         <div className="shrink-0 text-right">
-          <p className="angka text-[17px] leading-tight font-extrabold">{formatRupiah(zona.premiumPerWeek)}</p>
-          <p className="text-[12px] text-abu">per minggu</p>
+          <p className="angka text-[17px] leading-tight font-extrabold">
+            {toWei(zona.premiumPerWeek) > 0n ? formatRupiah(zona.premiumPerWeek) : "Belum tersedia"}
+          </p>
+          {toWei(zona.premiumPerWeek) > 0n ? <p className="text-[12px] text-abu">per minggu</p> : null}
         </div>
       </div>
 

@@ -61,7 +61,7 @@ export function Providers({ children }: { children: ReactNode }) {
           theme: "light",
           accentColor: "#0b5fd0",
           landingHeader: "Masuk ke Payung",
-          loginMessage: "Pakai akun Google kamu. Tidak perlu isi data apa pun.",
+          loginMessage: "Pakai Google atau email. Payung akan menyiapkan dompet testnet untuk polismu.",
           showWalletLoginFirst: false,
           walletList: [],
         },

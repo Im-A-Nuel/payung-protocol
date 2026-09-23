@@ -19,7 +19,7 @@ const PETA: Array<[RegExp, string]> = [
   [/user rejected|user denied|rejected the request/i, "Kamu membatalkan permintaannya."],
   [
     /insufficient funds|gas required|out of gas/i,
-    "Belum bisa dikirim dari dompetmu. Pengiriman tanpa biaya masih kami siapkan.",
+    "Saldo tBNB di dompet ini belum cukup untuk biaya jaringan opBNB Testnet. Isi tBNB lalu coba lagi.",
   ],
   [/timeout|timed out/i, "Jaringan lagi lambat. Coba lagi sebentar lagi."],
 ];

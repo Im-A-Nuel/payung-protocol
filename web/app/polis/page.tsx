@@ -10,7 +10,7 @@ import { useAkun } from "@/lib/akun";
 import { formatTanggalPanjang } from "@/lib/format";
 import { pesanGalat } from "@/lib/galat";
 import { GrafikHujan } from "@/components/grafik-hujan";
-import { Galat, JudulHalaman, Kartu, Kosong, Memuat } from "@/components/ui";
+import { Galat, JudulHalaman, Kartu, Kosong, Memuat, Tombol } from "@/components/ui";
 
 export default function HalamanPolis() {
   return (
@@ -21,7 +21,7 @@ export default function HalamanPolis() {
 }
 
 function IsiPolis() {
-  const { sudahMasuk, alamat } = useAkun();
+  const { siap, sudahMasuk, alamat, masuk, bisaMasuk } = useAkun();
   const baruBeli = useSearchParams().get("baru") === "1";
 
   const polis = useQuery({
@@ -44,8 +44,14 @@ function IsiPolis() {
         <JudulHalaman judul="Polis kamu" />
         <Kosong
           judul="Masuk dulu"
-          pesan="Polismu muncul di sini setelah kamu masuk pakai akun Google."
-          anak={<TautanBeranda label="Ke halaman depan" />}
+          pesan="Masuk dengan Google atau email untuk melihat polis di dompet testnetmu."
+          anak={
+            bisaMasuk ? (
+              <Tombol onClick={masuk} disabled={!siap}>Masuk untuk lihat polis</Tombol>
+            ) : (
+              <TautanBeranda label="Lihat pilihan zona" />
+            )
+          }
         />
       </>
     );

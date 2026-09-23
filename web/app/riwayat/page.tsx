@@ -8,10 +8,10 @@ import { useAkun } from "@/lib/akun";
 import { urlTransaksi } from "@/lib/contracts";
 import { formatRupiah, formatTanggalPanjang, toWei } from "@/lib/format";
 import { pesanGalat } from "@/lib/galat";
-import { Galat, JudulHalaman, Kartu, Kosong, Memuat } from "@/components/ui";
+import { Galat, JudulHalaman, Kartu, Kosong, Memuat, Tombol } from "@/components/ui";
 
 export default function HalamanRiwayat() {
-  const { sudahMasuk, alamat } = useAkun();
+  const { siap, sudahMasuk, alamat, masuk, bisaMasuk } = useAkun();
 
   const payout = useQuery({
     queryKey: ["payout", alamat],
@@ -27,12 +27,16 @@ export default function HalamanRiwayat() {
           judul="Masuk dulu"
           pesan="Setiap bayaran yang pernah masuk ke dompetmu tercatat di sini."
           anak={
-            <Link
-              href="/"
-              className="inline-flex min-h-[44px] items-center rounded-xl px-4 text-[15px] font-bold text-langit"
-            >
-              Ke halaman depan
-            </Link>
+            bisaMasuk ? (
+              <Tombol onClick={masuk} disabled={!siap}>Masuk untuk lihat riwayat</Tombol>
+            ) : (
+              <Link
+                href="/"
+                className="inline-flex min-h-[44px] items-center rounded-xl px-4 text-[15px] font-bold text-langit"
+              >
+                Lihat pilihan zona
+              </Link>
+            )
           }
         />
       </>
@@ -68,7 +72,7 @@ export default function HalamanRiwayat() {
         <JudulHalaman judul="Riwayat bayaran" />
         <Kosong
           judul="Belum ada yang masuk"
-          pesan="Begitu hujan di zonamu lewat ambang, bayarannya langsung dikirim dan tercatat di sini."
+          pesan="Saat polis aktif dan hujan di zonamu mencapai ambang, bayaran dikirim dan tercatat di sini."
         />
       </>
     );
@@ -112,9 +116,11 @@ function BarisPayout({ payout }: { payout: Payout }) {
         <p className="angka shrink-0 text-[18px] font-extrabold text-uang">+{formatRupiah(payout.amount)}</p>
       </div>
 
-      <p className="mt-3 border-t border-garis pt-3 text-[14px] leading-relaxed text-abu">
-        {payout.explanation ?? "Penjelasan menyusul."}
-      </p>
+      {payout.explanation ? (
+        <p className="mt-3 border-t border-garis pt-3 text-[14px] leading-relaxed text-abu">
+          {payout.explanation}
+        </p>
+      ) : null}
 
       <a
         href={urlTransaksi(payout.txHash)}

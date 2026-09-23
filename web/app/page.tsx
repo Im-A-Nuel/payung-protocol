@@ -6,14 +6,14 @@ import { useQuery } from "@tanstack/react-query";
 
 import { getPolicy, getZones } from "@/lib/api";
 import { useAkun } from "@/lib/akun";
-import { formatRupiah } from "@/lib/format";
+import { formatRupiah, toWei } from "@/lib/format";
 import { pesanGalat } from "@/lib/galat";
 import { KartuZona } from "@/components/kartu-zona";
 import { PanelBeli } from "@/components/panel-beli";
-import { Galat, Kartu, Memuat, Tombol } from "@/components/ui";
+import { Galat, Kartu, Kosong, Memuat, Tombol } from "@/components/ui";
 
 export default function Beranda() {
-  const { siap, sudahMasuk, alamat, masuk, keluar } = useAkun();
+  const { siap, sudahMasuk, alamat, masuk, keluar, bisaMasuk } = useAkun();
   const [zonaDipilih, setZonaDipilih] = useState<number | null>(null);
 
   const zona = useQuery({ queryKey: ["zona"], queryFn: getZones });
@@ -44,41 +44,44 @@ export default function Beranda() {
 
   return (
     <>
-      <header className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-2">
+      <header className="mb-5 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
           <Logo />
           <span className="text-[22px] font-extrabold tracking-tight">Payung</span>
         </div>
         {sudahMasuk ? (
           <button
             onClick={keluar}
-            className="min-h-[44px] px-2 text-[14px] font-bold text-abu active:text-tinta"
+            className="min-h-[44px] rounded-xl px-3 text-[14px] font-bold text-abu active:text-tinta"
           >
             Keluar
           </button>
-        ) : null}
+        ) : (
+          <span className="text-[12px] font-semibold text-abu">opBNB Testnet</span>
+        )}
       </header>
 
       {!sudahMasuk ? (
-        <Kartu className="mb-6 bg-langit text-white">
-          <h1 className="text-[24px] leading-tight font-extrabold">Hujan deras, order sepi.</h1>
-          <p className="mt-2 text-[15px] leading-relaxed text-white/90">
-            {contoh
-              ? `Begitu hujan sehari lewat ${contoh.thresholdMm} mm di zonamu, ${formatRupiah(contoh.payoutPerDay)} masuk ke dompetmu. Tidak perlu lapor, tidak perlu kirim foto.`
-              : "Begitu hujan di zonamu melewati ambang, uangnya masuk sendiri ke dompetmu. Tidak perlu lapor, tidak perlu kirim foto."}
+        <section className="mb-7 rounded-[28px] bg-tinta p-5 text-white sm:p-6">
+          <p className="text-[13px] font-semibold text-[#aec8ea]">Perlindungan untuk pengemudi ojol</p>
+          <h1 className="mt-3 max-w-[360px] text-[clamp(1.65rem,7vw,2.2rem)] leading-[1.12] font-extrabold tracking-tight">
+            Hujan deras, order sepi.
+          </h1>
+          <p className="mt-3 max-w-[390px] text-[15px] leading-relaxed text-[#d7e3f1]">
+            Saat polismu aktif dan hujan harian di zona pilihanmu mencapai batas, bayaran masuk ke dompet tanpa perlu mengajukan klaim.
           </p>
-          <Tombol
-            varian="kedua"
-            className="mt-4 border-transparent"
-            onClick={masuk}
-            disabled={!siap}
-          >
-            Masuk pakai Google
-          </Tombol>
-          <p className="mt-2 text-center text-[13px] text-white/80">
-            Cukup akun Google. Tidak ada formulir.
-          </p>
-        </Kartu>
+          {aturanSeragam ? (
+            <div className="mt-5 flex flex-wrap items-end justify-between gap-x-5 gap-y-3 border-t border-white/20 pt-4">
+              <div>
+                <p className="text-[12px] font-medium text-[#aec8ea]">Bayaran per hari hujan</p>
+                <p className="angka mt-0.5 text-[27px] leading-tight font-extrabold">{formatRupiah(contoh.payoutPerDay)}</p>
+              </div>
+              <p className="pb-0.5 text-[13px] font-semibold text-[#d7e3f1]">
+                Mulai {contoh.thresholdMm} mm per hari
+              </p>
+            </div>
+          ) : null}
+        </section>
       ) : null}
 
       {polis.data ? (
@@ -94,16 +97,15 @@ export default function Beranda() {
         </Link>
       ) : null}
 
-      <div className="mb-3">
-        <h2 className="text-[17px] font-extrabold">Pilih zona tempat kamu narik</h2>
+      <div id="zona" className="mb-3 scroll-mt-5">
+        <div className="flex items-end justify-between gap-3">
+          <h2 className="text-[19px] leading-tight font-extrabold">Pilih zona narikmu</h2>
+          {daftar.length > 0 ? <span className="shrink-0 text-[13px] font-semibold text-abu">{daftar.length} zona</span> : null}
+        </div>
         {aturanSeragam ? (
           <p className="mt-1 text-[13px] leading-relaxed text-abu">
-            Semua zona bayar {formatRupiah(contoh.payoutPerDay)} per hari hujan di atas {contoh.thresholdMm}{" "}
-            mm, paling banyak {contoh.maxDaysPerWeek} hari tiap minggu.
+            Maksimal {contoh.maxDaysPerWeek} hari hujan dibayar tiap minggu. Pilih tempat kamu biasa narik untuk melihat preminya.
           </p>
-        ) : null}
-        {narasiSeragam ? (
-          <p className="mt-1 text-[13px] leading-relaxed text-abu">{contoh.premiumNarrative}</p>
         ) : null}
       </div>
 
@@ -115,6 +117,8 @@ export default function Beranda() {
         </div>
       ) : zona.isError ? (
         <Galat pesan={pesanGalat(zona.error)} onCoba={() => zona.refetch()} />
+      ) : daftar.length === 0 ? (
+        <Kosong judul="Zona belum tersedia" pesan="Pilihan zona belum muncul. Coba muat ulang sebentar lagi." anak={<Tombol varian="kedua" onClick={() => zona.refetch()}>Muat ulang zona</Tombol>} />
       ) : (
         <div className="flex flex-col gap-3">
           {daftar.map((z) => (
@@ -132,7 +136,37 @@ export default function Beranda() {
       )}
 
       {sudahMasuk && terpilih ? (
-        <PanelBeli zona={terpilih} terkunci={polis.data?.zoneId === terpilih.id} />
+        <PanelBeli zona={terpilih} terkunci={polis.data?.zoneId === terpilih.id} tampilkanNarasi={narasiSeragam} />
+      ) : null}
+
+      {!sudahMasuk && terpilih ? (
+        <Kartu className="mt-5 border-[#bdd5f5] bg-langit-muda p-5">
+          <p className="text-[13px] font-semibold text-langit">Zona pilihanmu</p>
+          <div className="mt-1 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+            <p className="text-[21px] font-extrabold">{terpilih.name}</p>
+            <p className="angka text-[17px] font-extrabold">
+              {toWei(terpilih.premiumPerWeek) > 0n
+                ? formatRupiah(terpilih.premiumPerWeek)
+                : "Premi belum tersedia"}{" "}
+              {toWei(terpilih.premiumPerWeek) > 0n ? (
+                <span className="text-[13px] font-medium text-abu">/ minggu</span>
+              ) : null}
+            </p>
+          </div>
+          {narasiSeragam && terpilih.premiumNarrative ? (
+            <p className="mt-2 text-[13px] leading-relaxed text-abu">{terpilih.premiumNarrative}</p>
+          ) : null}
+          <p className="mt-2 text-[14px] leading-relaxed text-abu">Masuk saat siap membeli. Google atau email bisa dipakai, lalu dompet testnet dibuat untuk menerima polis dan bayaran.</p>
+          {bisaMasuk ? (
+            <Tombol className="mt-4" onClick={masuk} disabled={!siap || toWei(terpilih.premiumPerWeek) === 0n}>
+              {toWei(terpilih.premiumPerWeek) > 0n ? "Masuk untuk beli polis" : "Premi zona belum tersedia"}
+            </Tombol>
+          ) : (
+            <p className="mt-4 rounded-xl bg-kartu p-3 text-[13px] font-semibold text-abu">
+              Mode pratinjau: login dan pembelian belum aktif di lingkungan ini.
+            </p>
+          )}
+        </Kartu>
       ) : null}
     </>
   );

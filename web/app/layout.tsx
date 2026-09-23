@@ -15,7 +15,7 @@ const jakarta = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "Payung",
   description:
-    "Asuransi hujan untuk driver ojol. Hujan lewat 20 mm di zonamu, Rp 25.000 masuk ke dompet. Tanpa klaim, tanpa foto.",
+    "Perlindungan hujan untuk pengemudi ojol. Saat polis aktif dan hujan di zonamu mencapai batas, bayaran masuk ke dompet tanpa klaim manual.",
   manifest: "/manifest.webmanifest",
   appleWebApp: { capable: true, statusBarStyle: "default", title: "Payung" },
   icons: { icon: "/icon.svg", apple: "/apple-touch-icon.png" },

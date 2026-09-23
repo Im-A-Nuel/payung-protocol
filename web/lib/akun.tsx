@@ -16,6 +16,8 @@ export type Akun = {
   alamat: `0x${string}` | null;
   masuk: () => void;
   keluar: () => void;
+  /** False in read-only preview mode, where the sign-in action is unavailable. */
+  bisaMasuk: boolean;
   /** False in preview mode: reads work, sending anything on-chain does not. */
   bisaKirim: boolean;
 };
@@ -42,7 +44,8 @@ export function AkunPrivy({ children }: { children: ReactNode }) {
       alamat: authenticated ? alamat : null,
       masuk: login,
       keluar: logout,
-      bisaKirim: true,
+      bisaMasuk: true,
+      bisaKirim: authenticated && Boolean(address),
     };
   }, [ready, authenticated, login, logout, user?.wallet?.address, address]);
 
@@ -57,6 +60,7 @@ export function AkunPratinjau({ alamat, children }: { alamat: string; children: 
       alamat: (alamat || null) as `0x${string}` | null,
       masuk: () => {},
       keluar: () => {},
+      bisaMasuk: false,
       bisaKirim: false,
     }),
     [alamat],
